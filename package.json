@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "amazon-product-api": "^0.4.4",
-    "node-etsy": "0.0.1"
+    "node-etsy": "0.0.1",
+    "typescript": "^2.7.2"
   }
 }

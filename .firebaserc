@@ -1,5 +1,6 @@
 {
   "projects": {
-    "prod": "etsy-syncer"
+    "prod": "etsy-syncer",
+    "default": "etsy-syncer"
   }
 }

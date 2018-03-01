@@ -1,8 +1,8 @@
-const admin = require("firebase-admin");
-
-const url = require("url");
-const etsyjs = require("etsyjs2");
-const config = require("./config.json");
+import * as admin from 'firebase-admin';
+import * as url from "url";
+import * as etsyjs from "etsyjs2";
+import config from "./config";
+import { EtsyProductResponse } from './types';
 
 const etsyClient = etsyjs.client(
   Object.assign(config.etsy, {
@@ -12,24 +12,25 @@ const etsyClient = etsyjs.client(
   })
 );
 
-exports.getProducts = shop => {
-  return getSession().then(({ token, secret }) => {
-    return new Promise((resolve, reject) => {
-      etsyClient
-        .auth(token, secret)
-        .get(
-          `/shops/${shop}/listings/active`,
-          { limit: 1000, include_private: true },
-          (err, body, headers) => {
-            if (err) return reject(err);
-            resolve(headers);
-          }
-        );
-    });
+export const getProducts = async (shop:string):Promise<EtsyProductResponse> => {
+  const { token, secret } = await getSession();
+  return new Promise((resolve, reject) => {
+    etsyClient
+      .auth(token, secret)
+      .get(
+        `/shops/${shop}/listings/active`,
+        { limit: 1000, include_private: true },
+        (err, body, headers) => {
+          if (err) return reject(err);
+
+          const result:EtsyProductResponse = headers;
+          resolve(result);
+        }
+      );
   });
 };
 
-exports.updateProduct = (id, data) => {
+export const updateProduct = (id, data) => {
   return getSession().then(({ token, secret }) => {
     return new Promise((resolve, reject) => {
       etsyClient
@@ -42,7 +43,7 @@ exports.updateProduct = (id, data) => {
   });
 };
 
-exports.loginUrl = () => {
+export const loginUrl = () => {
   return new Promise((resolve, reject) => {
     etsyClient.requestToken((err, response) => {
       if (err) return reject(err);
@@ -53,7 +54,7 @@ exports.loginUrl = () => {
   });
 };
 
-exports.handleCallbackURL = reqUrl => {
+export const handleCallbackURL = reqUrl => {
   const query = url.parse(reqUrl, true).query;
   const verifier = query.oauth_verifier;
 
