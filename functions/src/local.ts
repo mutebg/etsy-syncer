@@ -1,7 +1,7 @@
-import * as admin from 'firebase-admin';
-import { LocalProduct } from './types';
+import * as admin from "firebase-admin";
+import { LocalProduct } from "./types";
 
-export const getProducts = async ():Promise<LocalProduct[]> => {
+export const getProducts = async (): Promise<LocalProduct[]> => {
   const snapshot = await admin
     .firestore()
     .collection("products")
@@ -24,15 +24,15 @@ export const getProducts = async ():Promise<LocalProduct[]> => {
   // ];
 };
 
-export const updateProduct = (id:number, data:any) => {
+export const updateProduct = (id: number, data: any) => {
   return admin
     .firestore()
     .collection("products")
     .doc(String(id))
-    .set(data);
+    .update(data);
 };
 
-export const addProduct = (data:LocalProduct) => {
+export const addProduct = (data: LocalProduct) => {
   return admin
     .firestore()
     .collection("products")
@@ -40,7 +40,7 @@ export const addProduct = (data:LocalProduct) => {
     .set(data);
 };
 
-export const deleteProduct = (id:number) => {
+export const deleteProduct = (id: number) => {
   return admin
     .firestore()
     .collection("products")

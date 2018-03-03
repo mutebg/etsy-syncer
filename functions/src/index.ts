@@ -1,14 +1,14 @@
-'use strict';
+"use strict";
 
 import * as express from "express";
-import * as admin from 'firebase-admin';
+import * as admin from "firebase-admin";
 import * as cors from "cors";
 import * as functions from "firebase-functions";
 
 import * as local from "./local";
 import * as amazon from "./amazon";
 import * as etsy from "./etsy";
-import { LocalProduct } from './types';
+import { LocalProduct } from "./types";
 
 const app = express();
 admin.initializeApp(functions.config().firebase);
@@ -23,11 +23,10 @@ app.get("/", (req, res) => {
 // refresh all
 app.get("/refresh", async (req, res) => {
   const products = await local.getProducts();
-  return products.map( async ({ id, amazonId, etsyPrice, profit }) => {
+  return products.map(async ({ id, amazonId, etsyPrice, profit }) => {
     const amazonProduct = await amazon.getProduct(amazonId);
-    if ( shallUpdate(etsyPrice, profit, amazonProduct.price) ) {
+    if (shallUpdate(etsyPrice, profit, amazonProduct.price)) {
       return local.updateProduct(id, {
-        id,
         etsyPrice: amazonProduct.price + profit
       });
     } else {
@@ -37,27 +36,30 @@ app.get("/refresh", async (req, res) => {
 });
 
 // list of all products
-app.get("/products",  async (req, res) => {
-  const localProductsProm = local.getProducts()
+app.get("/products", async (req, res) => {
+  const localProductsProm = local.getProducts();
   const etsyProductsProm = etsy.getProducts("BrooklynStoreOnline");
-  const [localProducts, etsyProductsResult] = await Promise.all([localProductsProm, etsyProductsProm]);
+  const [localProducts, etsyProductsResult] = await Promise.all([
+    localProductsProm,
+    etsyProductsProm
+  ]);
   const etsyProducts = etsyProductsResult.results;
-  const localProductsMap = localProducts.reduce( (prev, current) => {
-    prev[ current.id ] = current;
+  const localProductsMap = localProducts.reduce((prev, current) => {
+    prev[current.id] = current;
     return prev;
   }, {});
 
-  const products:LocalProduct[] = etsyProducts.map( (p) => {
-    if( ! localProductsMap[p.listing_id]) {
+  const products: LocalProduct[] = etsyProducts.map(p => {
+    if (!localProductsMap[p.listing_id]) {
       // add product
-      const newProduct:LocalProduct = {
+      const newProduct: LocalProduct = {
         id: p.listing_id,
         isActive: false,
         title: p.title,
         etsyPrice: 0,
         amazonId: "",
         profit: 0
-      }
+      };
 
       //add new product
       local.addProduct(newProduct);
@@ -67,58 +69,42 @@ app.get("/products",  async (req, res) => {
   });
 
   return res.json({
-    products,
+    products
   });
-
-  // local
-  //   .getProducts()
-  //   .then(products => {
-  //     res.json({ products });
-  //   })
-  //   .catch(err => {
-  //     res.status(500).send(err);
-  //   });
-});
-
-// app.get("/etsy", async (req, res) => {
-//   const etsyProducts = await etsy.getProducts("BrooklynStoreOnline");
-//   res.json(etsyProducts)
-// });
-
-
-app.get("/etsyupdate", (req, res) => {
-  etsy
-    .updateProduct(583365760, {
-      price: 23.0
-    })
-    .then(s => console.log({ s }))
-    .catch(e => console.log({ e }));
 });
 
 // edit product
-app.put("/products/:id", (req, res) => {
+app.post("/products/:id", async (req, res) => {
   const data = {
     isActive: req.body.isActive,
     profit: req.body.profit,
-    amazonId: req.body.amazonId,
-    etsyPrice: req.body.etsyPrice,
+    amazonId: req.body.amazonId
   };
+
+  if (data.isActive) {
+    const amazonProduct = await amazon.getProduct(data.amazonId);
+    data.etsyPrice = amazonProduct.price + data.profit;
+  }
   return local
     .updateProduct(req.params.id, data)
-    .then(() => {
-      res.json({ status: "ok" });
+    .then(bla => {
+      res.json({
+        status: "ok"
+      });
     })
     .catch(err => {
       res.status(500).send(err);
     });
 });
 
-// delete product
-app.delete("/products/:id", (req, res) => {
-  return local
-    .deleteProduct(req.params.id)
-    .then(() => {
-      res.json({ status: "ok" });
+app.get("/test", (req, res) => {
+  etsy
+    .updatePrice(583365760, 2105848909, 2323039318, 40)
+    .then(data => {
+      res.json({
+        data,
+        status: "ok"
+      });
     })
     .catch(err => {
       res.status(500).send(err);

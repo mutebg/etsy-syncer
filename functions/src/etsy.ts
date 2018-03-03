@@ -1,18 +1,21 @@
-import * as admin from 'firebase-admin';
+import * as admin from "firebase-admin";
 import * as url from "url";
 import * as etsyjs from "etsyjs2";
 import config from "./config";
-import { EtsyProductResponse } from './types';
+import { EtsyProductResponse } from "./types";
 
 const etsyClient = etsyjs.client(
   Object.assign(config.etsy, {
     callbackURL:
       "http://localhost:5000/etsy-syncer/us-central1/api/etsy/authorise",
-    scope: "email_r%20profile_r%20profile_w%20address_r%20listings_w"
+    scope:
+      "email_r%20profile_r%20profile_w%20address_r%20listings_w%20listings_r"
   })
 );
 
-export const getProducts = async (shop:string):Promise<EtsyProductResponse> => {
+export const getProducts = async (
+  shop: string
+): Promise<EtsyProductResponse> => {
   const { token, secret } = await getSession();
   return new Promise((resolve, reject) => {
     etsyClient
@@ -23,7 +26,7 @@ export const getProducts = async (shop:string):Promise<EtsyProductResponse> => {
         (err, body, headers) => {
           if (err) return reject(err);
 
-          const result:EtsyProductResponse = headers;
+          const result: EtsyProductResponse = headers;
           resolve(result);
         }
       );
@@ -39,6 +42,35 @@ export const updateProduct = (id, data) => {
           if (err) return reject(err);
           resolve({ headers, body });
         });
+    });
+  });
+};
+
+export const updatePrice = (id, product_id, offering_id, price) => {
+  const data = {
+    product_id: product_id,
+    property_values: [],
+    offerings: [
+      {
+        offering_id,
+        price,
+        quantity: 10
+      }
+    ]
+  };
+
+  return getSession().then(({ token, secret }) => {
+    return new Promise((resolve, reject) => {
+      etsyClient
+        .auth(token, secret)
+        .put(
+          `/listings/${id}/inventory`,
+          { products: JSON.stringify([data]), price_on_property: [] },
+          (err, body, headers) => {
+            if (err) return reject(err);
+            resolve({ headers });
+          }
+        );
     });
   });
 };

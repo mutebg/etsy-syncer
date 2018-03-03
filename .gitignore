@@ -10,3 +10,4 @@ node_modules
 /*.log
 functions/lib
 functions/src/config.ts
+elm-stuff
