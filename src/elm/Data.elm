@@ -9,8 +9,11 @@ import Types exposing (..)
 
 apiBase : String
 apiBase =
-    --"https://us-central1-tilesmanager-70e8d.cloudfunctions.net/api/"
-    "http://localhost:5000/etsy-syncer/us-central1/api/"
+    "https://us-central1-etsy-syncer.cloudfunctions.net/api/"
+
+
+
+--"http://localhost:5000/etsy-syncer/us-central1/api/"
 
 
 productsDecoder : Decode.Decoder (List Product)
@@ -27,6 +30,7 @@ productDecoder =
         |> DecodePipe.required "etsyPrice" Decode.float
         |> DecodePipe.required "amazonId" Decode.string
         |> DecodePipe.required "profit" Decode.float
+        |> DecodePipe.required "minPrice" Decode.float
 
 
 productEncoder : Product -> Encode.Value
@@ -39,6 +43,7 @@ productEncoder product =
             , ( "etsyPrice", Encode.float product.etsyPrice )
             , ( "amazonId", Encode.string product.amazonId )
             , ( "profit", Encode.float product.profit )
+            , ( "minPrice", Encode.float product.minPrice )
             ]
     in
         Encode.object attributes

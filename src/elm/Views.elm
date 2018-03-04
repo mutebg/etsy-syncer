@@ -16,6 +16,7 @@ productList products =
                 , th [] [ text "name" ]
                 , th [] [ text "Etsy price" ]
                 , th [] [ text "Profit" ]
+                , th [] [ text "Min price" ]
                 , th [] [ text "Amazon ID" ]
                 , th [] []
                 ]
@@ -39,6 +40,9 @@ productRow product =
 
         -- onEtsyPriceChange =
         --     (\val -> updateField (TextInput "etsyPrice" val))
+        onMinPriceChange =
+            (\val -> updateField (TextInput "minPrice" val))
+
         onProfitChange =
             (\val -> updateField (TextInput "profit" val))
 
@@ -55,6 +59,7 @@ productRow product =
               --, td [] [ input [ type_ "text", value <| toString product.etsyPrice, onInput onEtsyPriceChange ] [] ]
             , td [] [ text <| toString product.etsyPrice ]
             , td [] [ input [ type_ "text", value <| toString product.profit, onInput onProfitChange ] [] ]
+            , td [] [ input [ type_ "text", value <| toString product.minPrice, onInput onMinPriceChange ] [] ]
             , td [] [ input [ type_ "text", value product.amazonId, onInput onAmazonIdChange ] [] ]
             , td [] [ button [ class "btn btn-primary", onClick onClickUpdate ] [ text "Save" ] ]
             ]

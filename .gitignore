@@ -11,3 +11,4 @@ node_modules
 functions/lib
 functions/src/config.ts
 elm-stuff
+public

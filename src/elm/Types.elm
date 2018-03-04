@@ -10,6 +10,7 @@ type alias Product =
     , etsyPrice : Float
     , amazonId : String
     , profit : Float
+    , minPrice : Float
     }
 
 

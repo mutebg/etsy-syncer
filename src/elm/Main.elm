@@ -96,6 +96,9 @@ updateProduct product message =
         TextInput "etsyPrice" inputValue ->
             { product | etsyPrice = Result.withDefault 0 (String.toFloat inputValue) }
 
+        TextInput "minPrice" inputValue ->
+            { product | minPrice = Result.withDefault 0 (String.toFloat inputValue) }
+
         TextInput "profit" inputValue ->
             { product | profit = Result.withDefault 0 (String.toFloat inputValue) }
 
